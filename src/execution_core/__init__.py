@@ -1,5 +1,8 @@
 version = "0.1.0"
 
+from execution_core.clock import Clock, FakeClock, SystemClock
+from execution_core.paper_broker import FillMode, PaperBroker
+from execution_core.position import apply_fill, apply_fill_to_account, empty_position
 from execution_core.risk import check
 from execution_core.types import (
     Account,
@@ -17,16 +20,24 @@ from execution_core.types import (
 
 __all__ = [
     "Account",
+    "apply_fill",
+    "apply_fill_to_account",
     "check",
+    "Clock",
+    "empty_position",
+    "FakeClock",
     "Fill",
+    "FillMode",
     "Intent",
     "Order",
     "OrderPlan",
     "OrderStatus",
     "OrderType",
+    "PaperBroker",
     "Position",
     "RiskDecision",
     "RiskLimits",
     "Side",
+    "SystemClock",
     "version",
 ]

@@ -87,6 +87,7 @@ class Position(BaseModel):
     instrument: str
     qty: Decimal
     avg_price: Decimal
+    realized_pnl: Decimal = Decimal("0")
 
 
 class Account(BaseModel):
