@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Protocol
 
 
@@ -17,9 +17,3 @@ class FakeClock:
 
     def now(self) -> datetime:
         return self._now
-
-    def set(self, moment: datetime) -> None:
-        self._now = moment
-
-    def advance(self, delta: timedelta) -> None:
-        self._now += delta
