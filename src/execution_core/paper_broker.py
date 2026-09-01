@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 from enum import Enum
 from itertools import count
@@ -5,6 +6,8 @@ from typing import Optional
 
 from execution_core.clock import Clock, SystemClock
 from execution_core.types import Fill, Order, OrderPlan, OrderStatus, OrderType, RiskDecision
+
+logger = logging.getLogger(__name__)
 
 
 class FillMode(str, Enum):
@@ -43,9 +46,15 @@ class PaperBroker:
 
     def place(self, plan: OrderPlan) -> Order:
         if plan.risk_decision is RiskDecision.REJECT:
+            logger.warning(
+                "rejecting plan with risk REJECT client_id=%s", plan.client_id
+            )
             return self._make_order(plan, OrderStatus.REJECTED)
 
         if self._has_live_client_order(plan.client_id):
+            logger.warning(
+                "duplicate live client_id=%s, rejecting order", plan.client_id
+            )
             return self._make_order(plan, OrderStatus.REJECTED)
 
         order = self._make_order(plan, OrderStatus.OPEN)
@@ -90,6 +99,7 @@ class PaperBroker:
             filled_qty=order.filled_qty,
         )
         self._orders[order_id] = cancelled
+        logger.info("cancelled order_id=%s client_id=%s", order_id, order.client_id)
         return cancelled
 
     def get_open_orders(self) -> list[Order]:
@@ -140,3 +150,11 @@ class PaperBroker:
             price=price,
         )
         self._fills.append(fill)
+        logger.info(
+            "fill order_id=%s client_id=%s %s %s @ %s",
+            order.order_id,
+            order.client_id,
+            order.side.value,
+            order.qty,
+            price,
+        )

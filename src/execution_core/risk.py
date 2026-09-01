@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from decimal import Decimal
 
@@ -10,6 +11,8 @@ from execution_core.types import (
     RiskLimits,
     Side,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _position_qty(positions: list[Position], instrument: str) -> Decimal:
@@ -41,6 +44,12 @@ def _max_qty_for_position_cap(
 
 
 def _reject_plan(intent: Intent, reason: str) -> OrderPlan:
+    logger.info(
+        "risk reject client_id=%s instrument=%s reason=%s",
+        intent.client_id,
+        intent.instrument,
+        reason,
+    )
     return OrderPlan(
         client_id=intent.client_id,
         instrument=intent.instrument,
@@ -56,8 +65,21 @@ def _reject_plan(intent: Intent, reason: str) -> OrderPlan:
 def _allow_or_resize_plan(intent: Intent, qty: Decimal, reason: str) -> OrderPlan:
     if qty < intent.qty:
         decision = RiskDecision.RESIZE
+        logger.info(
+            "risk resize client_id=%s instrument=%s qty=%s reason=%s",
+            intent.client_id,
+            intent.instrument,
+            qty,
+            reason,
+        )
     else:
         decision = RiskDecision.ALLOW
+        logger.debug(
+            "risk allow client_id=%s instrument=%s qty=%s",
+            intent.client_id,
+            intent.instrument,
+            qty,
+        )
 
     return OrderPlan(
         client_id=intent.client_id,
@@ -76,11 +98,9 @@ def check(
     account: Account,
     positions: list[Position],
     open_order_count_window: int,
-    now: datetime,
+    _now: datetime,
     limits: RiskLimits,
 ) -> OrderPlan:
-    del now
-
     if intent.qty <= 0:
         return _reject_plan(intent, "quantity must be positive")
 

@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -16,6 +17,8 @@ from execution_core.types import (
     RiskDecision,
     RiskLimits,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -41,6 +44,7 @@ class KillSwitch:
     def halt(self, reason: str) -> None:
         self._halted = True
         self.reason = reason
+        logger.warning("kill switch engaged: %s", reason)
 
 
 class OrderStore:
@@ -92,6 +96,7 @@ class Engine:
 
     def on_event(self, event: Event) -> list[Fill]:
         if self._kill_switch.halted:
+            logger.debug("event skipped: engine halted")
             self._cancel_open_orders()
             return []
 
@@ -105,6 +110,9 @@ class Engine:
             return []
 
         if self._store.has_live_order(intent.client_id):
+            logger.debug(
+                "event skipped: duplicate client_id=%s", intent.client_id
+            )
             return []
 
         plan = check(
@@ -121,6 +129,9 @@ class Engine:
         fills_before = len(self._broker.get_fills())
         order = self._broker.place(plan)
         if order.status is OrderStatus.REJECTED:
+            logger.warning(
+                "broker rejected order client_id=%s", intent.client_id
+            )
             return []
 
         self._store.register(order.client_id)
@@ -130,6 +141,14 @@ class Engine:
         for fill in new_fills:
             self._account = apply_fill_to_account(self._account, fill, fill.side)
         self._positions = list(self._account.positions)
+
+        if new_fills:
+            logger.info(
+                "event processed instrument=%s fills=%d daily_pnl=%s",
+                event.instrument,
+                len(new_fills),
+                self._account.daily_pnl,
+            )
 
         if (
             self._risk_limits.max_daily_loss is not None
