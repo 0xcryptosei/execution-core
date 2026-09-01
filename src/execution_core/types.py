@@ -52,6 +52,8 @@ class OrderPlan(BaseModel):
     order_type: OrderType
     qty: Decimal
     limit_price: Optional[Decimal] = None
+    risk_decision: RiskDecision
+    reason: str
 
 
 class Order(BaseModel):
@@ -92,6 +94,7 @@ class Account(BaseModel):
 
     account_id: str
     cash: Decimal
+    daily_pnl: Decimal = Decimal("0")
     positions: list[Position] = []
 
 
@@ -100,3 +103,6 @@ class RiskLimits(BaseModel):
 
     max_order_qty: Optional[Decimal] = None
     max_position_qty: Optional[Decimal] = None
+    max_order_notional: Optional[Decimal] = None
+    max_daily_loss: Optional[Decimal] = None
+    max_orders_per_minute: Optional[int] = None
