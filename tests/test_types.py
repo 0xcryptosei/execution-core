@@ -1,9 +1,9 @@
 from decimal import Decimal
 
-from execution_core import (
+from execution_core import Intent
+from execution_core.types import (
     Account,
     Fill,
-    Intent,
     Order,
     OrderStatus,
     OrderType,

@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 from execution_core.clock import FakeClock, SystemClock
-from execution_core.paper_broker import FillMode, PaperBroker
+from execution_core.paper_broker import PaperBroker
 from execution_core.types import (
     Order,
     OrderPlan,
