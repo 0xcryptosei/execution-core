@@ -151,3 +151,31 @@ def check(
         return _allow_or_resize_plan(intent, qty, reason)
 
     return _allow_or_resize_plan(intent, qty, "approved")
+
+
+class RiskChecker:
+    """Stateful wrapper around :func:`check` bound to ``RiskLimits``."""
+
+    def __init__(self, limits: RiskLimits) -> None:
+        self._limits = limits
+
+    @property
+    def limits(self) -> RiskLimits:
+        return self._limits
+
+    def evaluate(
+        self,
+        intent: Intent,
+        account: Account,
+        positions: list[Position],
+        open_order_count_window: int,
+        now: datetime,
+    ) -> OrderPlan:
+        return check(
+            intent,
+            account,
+            positions,
+            open_order_count_window,
+            now,
+            self._limits,
+        )
