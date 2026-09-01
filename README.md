@@ -6,6 +6,16 @@ execution-core is a venue-agnostic paper execution library for simulating order 
 
 **What is NOT included:** API keys, venue SDKs, or trading signals.
 
+## Public types
+
+- **Enums:** `Side`, `OrderType`, `OrderStatus`, `RiskDecision` (`ALLOW`, `RESIZE`, `REJECT`)
+- **Requests / plans:** `Intent`, `OrderPlan`
+- **Execution state:** `Order`, `Fill`, `Position`, `Account`
+- **Configuration:** `RiskLimits`
+- **Instrument:** string field on order-related models (e.g. `"BTC-USD"`)
+
+Quantities and prices use `Decimal`. Models reject unknown fields.
+
 ## Install
 
 ```bash
