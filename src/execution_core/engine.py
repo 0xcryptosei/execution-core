@@ -7,6 +7,7 @@ from typing import Optional, Protocol
 from execution_core.clock import Clock
 from execution_core.events import Event
 from execution_core.position import apply_fill_to_account
+from execution_core.protocols import Broker
 from execution_core.risk import check
 from execution_core.types import (
     Account,
@@ -63,7 +64,7 @@ class Engine:
         self,
         risk_limits: RiskLimits,
         kill_switch: KillSwitch,
-        broker: object,
+        broker: Broker,
         strategy: Strategy,
         clock: Clock,
         *,
@@ -89,6 +90,14 @@ class Engine:
     @property
     def positions(self) -> list[Position]:
         return list(self._positions)
+
+    @property
+    def halted(self) -> bool:
+        return self._kill_switch.halted
+
+    @property
+    def halt_reason(self) -> str | None:
+        return self._kill_switch.reason
 
     def halt(self, reason: str) -> None:
         self._kill_switch.halt(reason)

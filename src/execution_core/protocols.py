@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from execution_core.types import Fill, Order, OrderPlan
+
+
+class Broker(Protocol):
+    def place(self, plan: OrderPlan) -> Order: ...
+
+    def cancel(self, order_id: str) -> Order: ...
+
+    def get_open_orders(self) -> list[Order]: ...
+
+    def get_fills(self) -> list[Fill]: ...
