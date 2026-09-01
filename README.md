@@ -44,6 +44,7 @@ pytest -q
 ```bash
 python examples/paper_loop.py
 python examples/paper_loop.py --fake-clock
+python examples/engine_demo.py --log-level INFO
 ```
 
 See [docs/architecture.md](docs/architecture.md) for the event pipeline, idempotency, and kill-switch behavior.
@@ -58,12 +59,16 @@ from execution_core import (
     KillSwitch,
     OrderPlan,
     PaperBroker,
+    RiskChecker,
     RiskLimits,
     check,
 )
+from execution_core.events import Event, bar_event, tick_event
+from execution_core.logging_config import configure_logging
+from execution_core.protocols import Broker
 ```
 
-Additional types and helpers live in submodules (`execution_core.types`, `execution_core.events`, `execution_core.engine`, …) for tests and product integrations.
+Additional types and helpers live in submodules (`execution_core.types`, `execution_core.engine`, …) for tests and product integrations.
 
 Quantities and prices use `Decimal`. Models reject unknown fields (`extra="forbid"`).
 
