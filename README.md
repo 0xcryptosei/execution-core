@@ -50,21 +50,20 @@ See [docs/architecture.md](docs/architecture.md) for the event pipeline, idempot
 
 ## Public API
 
-| Module | Exports |
-|--------|---------|
-| `execution_core.types` | `Side`, `OrderType`, `OrderStatus`, `RiskDecision`, `Intent`, `OrderPlan`, `Order`, `Fill`, `Position`, `Account`, `RiskLimits` |
-| `execution_core.events` | `Event` |
-| `execution_core.risk` | `check` |
-| `execution_core.position` | `apply_fill`, `apply_fill_to_account`, `empty_position` |
-| `execution_core.paper_broker` | `PaperBroker`, `FillMode` |
-| `execution_core.clock` | `Clock`, `SystemClock`, `FakeClock` |
-| `execution_core.engine` | `Engine`, `EngineContext`, `Strategy`, `KillSwitch`, `OrderStore` |
-
-Import from the package root:
-
 ```python
-from execution_core import Engine, Event, PaperBroker, RiskLimits, check
+from execution_core import (
+    Engine,
+    FakeClock,
+    Intent,
+    KillSwitch,
+    OrderPlan,
+    PaperBroker,
+    RiskLimits,
+    check,
+)
 ```
+
+Additional types and helpers live in submodules (`execution_core.types`, `execution_core.events`, `execution_core.engine`, …) for tests and product integrations.
 
 Quantities and prices use `Decimal`. Models reject unknown fields (`extra="forbid"`).
 
