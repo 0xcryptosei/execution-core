@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "execution-core"
+version = "0.1.0"
+description = "Venue-agnostic paper execution library."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
