@@ -1,27 +1,73 @@
 # execution-core
 
-execution-core is a venue-agnostic paper execution library for simulating order placement and fills without connecting to live markets. It is designed as a reusable foundation for backtests, strategy development, and integration testing. The API and execution model are intentionally minimal at this stage.
+Venue-agnostic paper execution for strategies: events in, risk-checked orders and fills out—no live venue required.
 
-**Status:** scaffold only — not usable yet.
+## Status
 
-**What is NOT included:** API keys, venue SDKs, or trading signals.
+Paper-trading library with types, risk checks, a paper broker, position accounting, and an event-driven engine. Suitable for backtests, integration tests, and product repos that wrap live adapters around this core.
 
-## Public types
+## Contains
 
-- **Enums:** `Side`, `OrderType`, `OrderStatus`, `RiskDecision` (`ALLOW`, `RESIZE`, `REJECT`)
-- **Requests / plans:** `Intent`, `OrderPlan`
-- **Execution state:** `Order`, `Fill`, `Position`, `Account`
-- **Configuration:** `RiskLimits`
-- **Instrument:** string field on order-related models (e.g. `"BTC-USD"`)
+- Pydantic domain types (`Intent`, `Order`, `Fill`, `Position`, `Account`, …)
+- Pre-trade risk (`check`) with resize / reject decisions
+- `PaperBroker` with immediate fill mode
+- Signed position and PnL accounting
+- `Engine` orchestrating strategy → risk → broker → state
+- `KillSwitch`, idempotent `client_id` tracking, injectable clocks
 
-Quantities and prices use `Decimal`. Models reject unknown fields.
+## Does not contain
+
+- API keys or secrets handling beyond a sample `.env.example`
+- Venue SDKs (Binance, IBKR, etc.)
+- Signal generation or alpha research tooling
+- Live order routing
+
+Live venue adapters belong in **product repos** that depend on `execution-core` and implement broker protocols against real APIs.
 
 ## Install
 
 ```bash
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate          # Windows
+# source venv/bin/activate     # macOS / Linux
 pip install -e ".[dev]"
 ```
 
-On macOS or Linux, activate with `source venv/bin/activate` instead.
+## Verify
+
+```bash
+pytest -q
+```
+
+## Example
+
+```bash
+python examples/paper_loop.py
+python examples/paper_loop.py --fake-clock
+```
+
+See [docs/architecture.md](docs/architecture.md) for the event pipeline, idempotency, and kill-switch behavior.
+
+## Public API
+
+| Module | Exports |
+|--------|---------|
+| `execution_core.types` | `Side`, `OrderType`, `OrderStatus`, `RiskDecision`, `Intent`, `OrderPlan`, `Order`, `Fill`, `Position`, `Account`, `RiskLimits` |
+| `execution_core.events` | `Event` |
+| `execution_core.risk` | `check` |
+| `execution_core.position` | `apply_fill`, `apply_fill_to_account`, `empty_position` |
+| `execution_core.paper_broker` | `PaperBroker`, `FillMode` |
+| `execution_core.clock` | `Clock`, `SystemClock`, `FakeClock` |
+| `execution_core.engine` | `Engine`, `EngineContext`, `Strategy`, `KillSwitch`, `OrderStore` |
+
+Import from the package root:
+
+```python
+from execution_core import Engine, Event, PaperBroker, RiskLimits, check
+```
+
+Quantities and prices use `Decimal`. Models reject unknown fields (`extra="forbid"`).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
